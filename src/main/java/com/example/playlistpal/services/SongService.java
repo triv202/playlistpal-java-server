@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.Optional;
 
 @RestController
+@CrossOrigin(allowCredentials = "true")
 public class SongService {
   @Autowired
   SongRepository songRepository;

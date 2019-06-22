@@ -21,6 +21,7 @@ import java.util.List;
 
 
 @RestController
+@CrossOrigin(allowCredentials = "true")
 public class PlaylistService {
   @Autowired
   PlaylistRepository playlistRepository;
