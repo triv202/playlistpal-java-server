@@ -16,7 +16,7 @@ import javax.servlet.http.HttpSession;
 
 
 @RestController
-@CrossOrigin(origins="*")
+@CrossOrigin(origins="*", allowCredentials = "true")
 public class UserService {
   @Autowired
   UserRepository userRepository;
@@ -33,7 +33,7 @@ public class UserService {
     return currentUser;
   }
 
-  @PutMapping("/api/profile/{token}")
+  @PostMapping("/api/profile/{token}")
   public User setToken(HttpSession session,
                        @PathVariable("token") String token) {
     User currentUser = (User)
@@ -43,9 +43,29 @@ public class UserService {
     return userRepository.save(currentUser);
   }
 
+  @PostMapping("/api/profile")
+  public User updateUser(HttpSession session,
+                       @RequestBody User user) {
+    User currentUser = (User)
+            session.getAttribute("currentUser");
+    System.out.print(currentUser);
+    if (user.getZipCode() != null) {
+      currentUser.setZipCode(user.getZipCode());
+    }
+    if(user.getFavoriteArtist() != null) {
+      currentUser.setFavoriteArtist(user.getFavoriteArtist());
+    }
+    if(user.getPassword() != null) {
+      currentUser.setUsername(user.getPassword());
+    }
+    session.setAttribute("currentUser", currentUser);
+    return userRepository.save(currentUser);
+  }
+
   @PostMapping("/api/register")
   public User register(@RequestBody User user,
                        HttpSession session) {
+    System.out.print(user);
     session.setAttribute("currentUser", user);
     return userRepository.save(user);
   }
@@ -57,10 +77,12 @@ public class UserService {
     for (User user : users) {
       if( user.getUsername().equals(credentials.getUsername())
               && user.getPassword().equals(credentials.getPassword())) {
+
         session.setAttribute("currentUser", user);
         return user;
       }
     }
+    System.out.print("Unsuccessful login");
     return null;
   }
 
