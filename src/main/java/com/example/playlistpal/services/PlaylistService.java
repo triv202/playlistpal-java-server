@@ -21,7 +21,6 @@ import java.util.List;
 
 
 @RestController
-@CrossOrigin(origins="*")
 public class PlaylistService {
   @Autowired
   PlaylistRepository playlistRepository;
