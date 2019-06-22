@@ -20,7 +20,7 @@ import java.util.Optional;
 
 
 @RestController
-@CrossOrigin(origins="*", allowCredentials = "true")
+@CrossOrigin(origins="http://playlist-pal.com/", allowCredentials = "true")
 public class UserService {
   @Autowired
   UserRepository userRepository;
