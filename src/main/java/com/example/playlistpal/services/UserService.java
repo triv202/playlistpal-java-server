@@ -1,7 +1,9 @@
 package com.example.playlistpal.services;
 
 import com.example.playlistpal.models.User;
+import com.example.playlistpal.models.Playlist;
 import com.example.playlistpal.repositories.UserRepository;
+import com.example.playlistpal.repositories.PlaylistRepository;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -9,10 +11,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.servlet.http.HttpSession;
+
+import java.util.List;
+import java.util.Optional;
 
 
 @RestController
@@ -20,6 +24,8 @@ import javax.servlet.http.HttpSession;
 public class UserService {
   @Autowired
   UserRepository userRepository;
+  @Autowired
+  PlaylistRepository playlistRepository;
 
   @GetMapping("api/users")
   public Iterable<User> findAllUsers() {
@@ -30,6 +36,46 @@ public class UserService {
   public User profile(HttpSession session) {
     User currentUser = (User)
             session.getAttribute("currentUser");
+    return currentUser;
+  }
+
+  @GetMapping("api/profile/playlists")
+  public List<Playlist> getPlaylists(HttpSession session) {
+    User currentUser = (User)
+            session.getAttribute("currentUser");
+    return currentUser.getPlaylists();
+  }
+
+  @PostMapping("api/profile/playlists")
+  public User addPlaylist(HttpSession session, @RequestBody Playlist pl) {
+    User currentUser = (User)
+            session.getAttribute("currentUser");
+    Optional<Playlist> playlistOptional = playlistRepository.findById(pl.getId());
+    if(playlistOptional.isPresent()) {
+      Playlist playlist = playlistOptional.get();
+      currentUser.ownsPlaylist(playlist);
+      session.setAttribute("currentUser", currentUser);
+      return userRepository.save(currentUser);
+    }
+    return currentUser;
+
+  }
+
+  @PostMapping("api/profile/playlists/delete")
+  public User deletePlaylist(HttpSession session, @RequestBody Playlist pl) {
+    User currentUser = (User)
+            session.getAttribute("currentUser");
+    Optional<Playlist> playlistOptional = playlistRepository.findById(pl.getId());
+    if(playlistOptional.isPresent()) {
+      Playlist playlist = playlistOptional.get();
+      System.out.println("User:" + currentUser);
+      System.out.println("Playlist:" + playlist);
+      System.out.println("Session:" + session);
+      currentUser.deletePlaylist(playlist);
+      session.setAttribute("currentUser", currentUser);
+      return userRepository.save(currentUser);
+    }
+    System.out.println("Didn't find playlist");
     return currentUser;
   }
 

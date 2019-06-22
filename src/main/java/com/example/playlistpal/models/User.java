@@ -1,10 +1,14 @@
 package com.example.playlistpal.models;
 
+import java.util.List;
+
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Column;
+import javax.persistence.OneToMany;
 
 @Entity
 public class User {
@@ -21,6 +25,9 @@ public class User {
   private String favoriteArtist;
   @Column
   private String spotifyAuthToken;
+
+  @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+  private List<Playlist> playlists;
 
   public User() {
 
@@ -80,5 +87,27 @@ public class User {
 
   public void setSpotifyAuthToken(String spotifyAuthToken) {
     this.spotifyAuthToken = spotifyAuthToken;
+  }
+
+  public List<Playlist> getPlaylists() {
+    return playlists;
+  }
+
+  public void setPlaylists(List<Playlist> playlists) {
+    this.playlists = playlists;
+  }
+
+  public void ownsPlaylist(Playlist playlist) {
+    this.playlists.add(playlist);
+    if(playlist.getUser() != this) {
+      playlist.setUser(this);
+    }
+  }
+
+  public void deletePlaylist(Playlist playlist) {
+    this.playlists.remove(playlist);
+    if (playlist.getUser() == this) {
+      playlist.setUser(null);
+    }
   }
 }
